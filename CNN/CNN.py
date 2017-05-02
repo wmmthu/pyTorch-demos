@@ -21,31 +21,33 @@ class CNN(nn.Module):
 		super(CNN,self).__init__()
 		
 		self.conv_map = nn.Sequential(
-			nn.Conv2d(3,32,3),
+			nn.BatchNorm2d(3),
+
+			nn.Conv2d(3,16,3,1,1),
+			nn.BatchNorm2d(16),
+			nn.PReLU(),
+			nn.MaxPool2d(2,2),
+
+			nn.Conv2d(16,32,3,1,1),
 			nn.BatchNorm2d(32),
 			nn.PReLU(),
 			nn.MaxPool2d(2,2),
 
-			nn.Conv2d(32,32,3),
-			nn.BatchNorm2d(32),
-			nn.PReLU(),
-			nn.MaxPool2d(2,2),
-
-			nn.Conv2d(32,32,3),
-			nn.BatchNorm2d(32),
+			nn.Conv2d(32,64,3,1,1),
+			nn.BatchNorm2d(64),
 			nn.PReLU(),
 			nn.MaxPool2d(2,2)
 		)
 
 		self.linear_map = nn.Sequential(
-			nn.Linear(32*2*2, 100),
+			nn.Linear(64*4*4, 100),
 			nn.BatchNorm1d(100),
 			nn.PReLU(),
-			nn.Linear(100,10)
+			nn.Linear(100,10),
 		)
 	def forward(self, x):
 		x = self.conv_map(x)
-		x = x.view(-1,32*2*2) # flatten
+		x = x.view(-1,64*4*4) # flatten
 		y = self.linear_map(x)
 		return y
 

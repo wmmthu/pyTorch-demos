@@ -25,7 +25,10 @@ class MLP(nn.Module):
 		self.dropout = nn.Dropout(0.5)
 
 		self.main = nn.Sequential(
+			nn.BatchNorm1d(3*32*32),
+			nn.PReLU(),
 			nn.Linear(3*32*32, 200),
+
 			nn.BatchNorm1d(200),
 			nn.PReLU(),
 			nn.Linear(200,100),
@@ -33,9 +36,33 @@ class MLP(nn.Module):
 			nn.PReLU(),
 			nn.Linear(100,10),
 		)
+
+		self.initlayer = nn.Sequential(
+			nn.BatchNorm1d(3*32*32),
+			nn.PReLU(),
+			nn.Linear(3*32*32, 200),
+		)
+		self.reslayer = nn.Sequential(
+			nn.BatchNorm1d(200),
+			nn.PReLU(),
+			nn.Linear(200,100),
+			nn.BatchNorm1d(100),
+			nn.PReLU(),
+			nn.Linear(100,200),	
+		)  
+		self.finalayer = nn.Sequential(
+			nn.BatchNorm1d(200),
+			nn.PReLU(),
+			nn.Linear(200, 100),
+			
+		)
 	def forward(self, x):
 		x = x.view(-1, 3*32*32)
-		y = self.main(x)
+		# y = self.main(x)
+
+		x = self.initlayer(x)
+		x = self.reslayer(x) + x
+		y = self.finalayer(x)
 		return y
 
 model     = MLP()
